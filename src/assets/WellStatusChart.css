@@ -1,0 +1,160 @@
+.well-status-container {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .chart-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .chart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .chart-icon {
+    font-size: 1.5rem;
+  }
+  
+  .subsection-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  
+  .pie-chart-section {
+    margin-bottom: 2rem;
+  }
+  
+  .pie-chart-wrapper {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 1rem;
+  }
+  
+  .bar-chart-section {
+    margin-bottom: 2rem;
+  }
+  
+  .bar-chart-wrapper {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 1rem;
+  }
+  
+  .status-tooltip {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    font-size: 0.875rem;
+  }
+  
+  .tooltip-title {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+  }
+  
+  .tooltip-value,
+  .tooltip-percentage,
+  .tooltip-info {
+    margin: 0.25rem 0;
+    color: #4a5568;
+  }
+  
+  .status-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .status-card {
+    background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%);
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  
+  .status-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .status-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .status-name {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.875rem;
+  }
+  
+  .status-count {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #667eea;
+    font-family: 'Inter', monospace;
+  }
+  
+  .status-percentage {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-bottom: 0.5rem;
+  }
+  
+  .status-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 0 0 8px 8px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .well-status-container {
+      padding: 1rem;
+    }
+    
+    .status-cards {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.75rem;
+    }
+    
+    .pie-chart-wrapper,
+    .bar-chart-wrapper {
+      padding: 0.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .status-cards {
+      grid-template-columns: 1fr;
+    }
+    
+    .status-card {
+      padding: 0.75rem;
+    }
+  }

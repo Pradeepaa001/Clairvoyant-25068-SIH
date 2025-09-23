@@ -1,0 +1,44 @@
+.lu-card {
+  background: linear-gradient(135deg, #0b1f33 0%, #0f2b46 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.lu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.lu-title {
+  color: #e3f2fd;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.lu-body {
+  padding: 12px 14px 16px 14px;
+}
+
+.lu-row { 
+  display: grid; 
+  grid-template-columns: 1fr 3fr auto; 
+  align-items: center; 
+  gap: 10px; 
+  margin: 8px 0; 
+}
+
+.lu-name { color: #b0c7da; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.lu-bar { background: rgba(255,255,255,0.06); height: 10px; border-radius: 20px; overflow: hidden; }
+
+.lu-fill { height: 100%; background: linear-gradient(90deg, #26c6da, #00acc1); border-right: 2px solid rgba(255,255,255,0.25); }
+
+.lu-value { color: #e3f2fd; font-weight: 700; font-size: 12px; }
+
+.lu-empty { color: #90a4ae; font-size: 12px; }
+
+
