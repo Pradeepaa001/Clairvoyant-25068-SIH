@@ -2,15 +2,41 @@ import React from 'react';
 import '../assets/KPICards.css';
 
 const KPICards = ({ data }) => {
-  // Calculate KPI metrics
-  const totalWells = data.length;
-  const dryWells = data.filter(item => item.is_dry).length;
-  const avgWaterLevel = data.reduce((sum, item) => sum + (item.water_level_bgl_m || 0), 0) / totalWells;
-  let maxWaterLevel = Math.max(...data.map(item => item.water_level_bgl_m || 0));
-  let minWaterLevel = Math.min(...data.map(item => item.water_level_bgl_m || 0));
-  // Well types count
-  const borewells = data.filter(item => item.well_type_unified?.toLowerCase().includes('bore')).length;
-  const dugWells = data.filter(item => item.well_type_unified?.toLowerCase().includes('dug')).length;
+  // Calculate KPI metrics using unique wells
+  const wellsById = data.reduce((map, item) => {
+    const id = item.well_no;
+    if (!id) return map;
+    if (!map.has(id)) map.set(id, []);
+    map.get(id).push(item);
+    return map;
+  }, new Map());
+
+  const totalWells = wellsById.size;
+
+  // Unique dry wells: any record with is_dry=true per well_no
+  const dryWells = Array.from(wellsById.values()).filter(records => records.some(r => r.is_dry)).length;
+
+  // Per-well average water level, then overall average of these per-well averages
+  const perWellAverages = Array.from(wellsById.values()).map(records => {
+    const levels = records.map(r => Number(r.water_level_bgl_m)).filter(v => isFinite(v));
+    if (levels.length === 0) return null;
+    return levels.reduce((a,b)=>a+b,0) / levels.length;
+  }).filter(v => v !== null);
+  const avgWaterLevel = perWellAverages.length ? (perWellAverages.reduce((a,b)=>a+b,0) / perWellAverages.length) : 0;
+
+  // Extremes across observed levels (not per-well averages)
+  const numericLevels = data.map(item => Number(item.water_level_bgl_m)).filter(v => isFinite(v));
+  let maxWaterLevel = numericLevels.length ? Math.max(...numericLevels) : 0;
+  let minWaterLevel = numericLevels.length ? Math.min(...numericLevels) : 0;
+
+  // Well types count based on unique wells (use first record's type)
+  const uniqueWellTypes = Array.from(wellsById.values()).map(records => (records[0]?.well_type_unified || '').toLowerCase());
+  const borewells = uniqueWellTypes.filter(t => t.includes('bore')).length;
+  const dugWells = uniqueWellTypes.filter(t => t.includes('dug')).length;
+
+  // Unique districts and talukas present in filtered data
+  const totalDistricts = [...new Set(data.map(item => item.district_unified).filter(Boolean))].length;
+  const totalTalukas = [...new Set(data.map(item => item.taluk_unified).filter(Boolean))].length;
 
   const kpiData = [
     {
@@ -39,20 +65,20 @@ const KPICards = ({ data }) => {
       description: 'Below ground level (BGL)'
     },
     {
-      title: 'Deepest Level',
-      value: `${maxWaterLevel.toFixed(2)}m`,
-      icon: '⬇️',
+      title: 'Districts',
+      value: totalDistricts.toLocaleString(),
+      icon: '🗺️',
       color: 'teal',
       trend: 'good',
-      description: 'Maximum depth recorded'
+      description: 'Districts in view'
     },
     {
-      title: 'Shallowest Level',
-      value: `${minWaterLevel.toFixed(2)}m`,
-      icon: '⬆️',
+      title: 'Talukas',
+      value: totalTalukas.toLocaleString(),
+      icon: '🏘️',
       color: 'orange',
-      trend: 'critical',
-      description: 'Minimum depth recorded'
+      trend: 'good',
+      description: 'Talukas in view'
     },
     {
       title: 'Borewells',

@@ -3,27 +3,56 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Ba
 import '../assets/WellStatusChart.css';
 
 const WellStatusChart = ({ data }) => {
-  // Process data for well status pie chart
+  // Process data for well status pie chart - group by well_no first
   const statusData = useMemo(() => {
-    const statusCount = data.reduce((acc, item) => {
-      const status = item.remarks_category || 'unknown';
+    // Group by well_no first, then get the latest status for each well
+    const wellsById = data.reduce((map, item) => {
+      const id = item.well_no;
+      if (!id) return map;
+      if (!map.has(id)) map.set(id, []);
+      map.get(id).push(item);
+      return map;
+    }, new Map());
+
+    // Get the latest status for each well (most recent date)
+    const wellStatuses = Array.from(wellsById.values()).map(records => {
+      const sorted = records.sort((a, b) => new Date(b.date_parsed) - new Date(a.date_parsed));
+      return sorted[0].remarks_category || 'unknown';
+    });
+
+    const statusCount = wellStatuses.reduce((acc, status) => {
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {});
 
+    const totalWells = wellStatuses.length;
+
     return Object.entries(statusCount).map(([status, count]) => ({
       name: status.charAt(0).toUpperCase() + status.slice(1),
       value: count,
-      percentage: ((count / data.length) * 100).toFixed(1)
+      percentage: ((count / totalWells) * 100).toFixed(1)
     }));
   }, [data]);
 
-  // Process data for well type comparison
+  // Process data for well type comparison - group by well_no first
   const wellTypeData = useMemo(() => {
-    const typeCount = data.reduce((acc, item) => {
-      const type = item.well_type_unified || 'Unknown';
-      if (!acc[type]) {
-        acc[type] = {
+    // Group by well_no first
+    const wellsById = data.reduce((map, item) => {
+      const id = item.well_no;
+      if (!id) return map;
+      if (!map.has(id)) map.set(id, []);
+      map.get(id).push(item);
+      return map;
+    }, new Map());
+
+    // Process each unique well
+    const typeCount = {};
+    Array.from(wellsById.values()).forEach(records => {
+      const well = records[0]; // Use first record for well type and depth
+      const type = well.well_type_unified || 'Unknown';
+      
+      if (!typeCount[type]) {
+        typeCount[type] = {
           name: type,
           total: 0,
           dry: 0,
@@ -32,14 +61,16 @@ const WellStatusChart = ({ data }) => {
         };
       }
       
-      acc[type].total += 1;
-      if (item.is_dry) acc[type].dry += 1;
-      if (item.well_depth_m_unified) {
-        acc[type].depths.push(item.well_depth_m_unified);
-      }
+      typeCount[type].total += 1;
       
-      return acc;
-    }, {});
+      // Check if this well has ever been dry
+      const hasBeenDry = records.some(r => r.is_dry);
+      if (hasBeenDry) typeCount[type].dry += 1;
+      
+      if (well.well_depth_m_unified) {
+        typeCount[type].depths.push(well.well_depth_m_unified);
+      }
+    });
 
     return Object.values(typeCount).map(type => ({
       ...type,

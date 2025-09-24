@@ -21,7 +21,7 @@ const AlertsPanel = ({ data = [] }) => {
         const prev = Number(records[i-1].water_level_bgl_m) || 0;
         const curr = Number(records[i].water_level_bgl_m) || 0;
         const delta = curr - prev;
-        if (delta >= 5) { // 5m or more increase in depth (drop)
+        if (delta >= 4) { // 4m or more increase in depth (drop)
           drops.push({
             ...records[i],
             delta,

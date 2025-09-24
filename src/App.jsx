@@ -51,20 +51,31 @@ function App() {
     return filtered;
   }, [filters]);
 
-  // Get unique values for filter dropdowns
-  const filterOptions = useMemo(() => ({
-    districts: [...new Set(data.map(item => item.district_unified))].sort(),
-    taluks: [...new Set(data.map(item => item.taluk_unified))].sort(),
-    wellTypes: [...new Set(data.map(item => item.well_type_unified))].sort(),
-    remarksCategories: [...new Set(data.map(item => item.remarks_category))].sort()
-  }), []);
+  // Get unique values for filter dropdowns (taluks react to selected district)
+  const filterOptions = useMemo(() => {
+    const districts = [...new Set(data.map(item => item.district_unified).filter(Boolean))].sort();
+    const talukSource = filters.district !== 'All' 
+      ? data.filter(item => item.district_unified === filters.district)
+      : data;
+    const taluks = [...new Set(talukSource.map(item => item.taluk_unified).filter(Boolean))].sort();
+    const wellTypes = [...new Set(data.map(item => item.well_type_unified).filter(Boolean))].sort();
+    const remarksCategories = [...new Set(data.map(item => item.remarks_category).filter(Boolean))].sort();
+    return { districts, taluks, wellTypes, remarksCategories };
+  }, [filters.district]);
 
   useEffect(() => {
     setFilteredData(processedData);
   }, [processedData]);
 
   const handleFilterChange = (newFilters) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters(prev => {
+      const next = { ...prev, ...newFilters };
+      // If district changed, reset taluk to 'All' to avoid stale selection
+      if (newFilters.district && newFilters.district !== prev.district) {
+        next.taluk = 'All';
+      }
+      return next;
+    });
   };
 
   return (

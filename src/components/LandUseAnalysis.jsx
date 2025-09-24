@@ -3,16 +3,42 @@ import '../assets/LandUseAnalysis.css';
 
 const LandUseAnalysis = ({ data = [] }) => {
   const stats = useMemo(() => {
-    const groups = new Map();
-    data.forEach(d => {
-      const key = d.land_use || 'Unknown';
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key).push(Number(d.water_level_bgl_m) || 0);
+    // Group by well_no first, then by land_use
+    const wellsById = data.reduce((map, item) => {
+      const id = item.well_no;
+      if (!id) return map;
+      if (!map.has(id)) map.set(id, []);
+      map.get(id).push(item);
+      return map;
+    }, new Map());
+
+    // Calculate per-well averages, then group by land_use
+    const landUseGroups = new Map();
+    Array.from(wellsById.values()).forEach(records => {
+      const well = records[0]; // Use first record for land_use
+      const landUse = well.land_use || 'Unknown';
+      
+      // Calculate average water level for this well
+      const levels = records
+        .map(r => Number(r.water_level_bgl_m))
+        .filter(v => isFinite(v) && v > 0);
+      
+      if (levels.length > 0) {
+        const wellAvg = levels.reduce((a, b) => a + b, 0) / levels.length;
+        
+        if (!landUseGroups.has(landUse)) {
+          landUseGroups.set(landUse, []);
+        }
+        landUseGroups.get(landUse).push(wellAvg);
+      }
     });
-    const items = Array.from(groups.entries()).map(([key, arr]) => {
-      const avg = arr.length ? arr.reduce((a,b)=>a+b,0) / arr.length : 0;
-      return { key, avg, count: arr.length };
-    }).sort((a,b)=> b.count - a.count).slice(0,6);
+
+    const items = Array.from(landUseGroups.entries()).map(([key, wellAverages]) => {
+      const avg = wellAverages.length ? 
+        wellAverages.reduce((a, b) => a + b, 0) / wellAverages.length : 0;
+      return { key, avg, count: wellAverages.length };
+    }).sort((a, b) => b.count - a.count).slice(0, 6);
+    
     return items;
   }, [data]);
 
@@ -21,7 +47,7 @@ const LandUseAnalysis = ({ data = [] }) => {
   return (
     <div className="lu-card">
       <div className="lu-header">
-        <div className="lu-title">Land Use vs Avg Water Level (BGL)</div>
+        <div className="lu-title">Land Use vs Avg Water Level (Well-based)</div>
       </div>
       <div className="lu-body">
         {stats.map((s, idx) => (

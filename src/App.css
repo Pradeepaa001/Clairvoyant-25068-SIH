@@ -10,11 +10,18 @@ body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   color: #2d3748;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .app {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  width: 100%;
+  max-width: 1400px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header Styles */
@@ -68,7 +75,6 @@ body {
 
 /* Dashboard Content */
 .dashboard-content {
-  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
   gap: 2rem;
@@ -86,6 +92,7 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   gap: 2rem;
   margin-top: 1rem;
+  max-width: 1000px;
 }
 
 .chart-section {
